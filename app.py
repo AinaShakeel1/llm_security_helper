@@ -30,15 +30,19 @@ with tabs[0]:
             """
             
             # Call LLM API
-            response = openai.ChatCompletion.create(
-                model="gpt-4",
-                messages=[{"role": "user", "content": prompt}],
-                max_tokens=500
-            )
+            response = openai.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "user", "content": prompt}
+            ],
+            max_tokens=500
+        )
             
             # Display results
             st.subheader("Security Analysis Results")
-            st.text(response['choices'][0]['message']['content'])
+            # st.text(response['choices'][0]['message']['content'])
+            security_analysis = response.choices[0].message.content
+            st.text(security_analysis)  
         else:
             st.warning("Please enter some code to analyze.")
 
