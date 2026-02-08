@@ -78,29 +78,25 @@ with tabs[0]:
     if st.button("Analyze Code", key="code_button"):
         if code_input.strip():
             prompt = f"""
-You are an application security expert.
+You are a security expert conducting a code security audit.
 
-Analyze the following code and identify ONLY security vulnerabilities.
+Analyze the following code snippet for **critical security vulnerabilities only** 
+(e.g., SQL injection, command injection, auth bypass, privilege escalation).
 
-You MUST classify each issue using ONLY the following
-OWASP Top 10 for LLM Applications (2025):
+IGNORE performance, style, or non-security issues.
 
-{OWASP_LLM_2025}
-
-DO NOT invent new categories.
-DO NOT use legacy OWASP Web Top 10 labels.
-DO NOT say "closest match".
-
-For each vulnerability, output EXACTLY in this format:
+For each vulnerability, provide:
 
 ### Vulnerability <number>: <short name>
-**Description:**
-**OWASP LLM Category:** (must be one of LLM01–LLM10 above)
-**MITRE ATLAS Mapping:** (tactic or technique name)
-**Mitigation:**
+**Description:**  
+**Exploitation Scenario:**  
+**Recommended Fix / Secure Code Example:**  
 
+If no critical vulnerabilities are found, respond: "No critical security vulnerabilities detected."
 Code:
+```
 {code_input}
+```
 """
             with st.spinner("Analyzing code security..."):
                 result = call_groq_model(prompt)
