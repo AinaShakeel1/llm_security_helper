@@ -13,6 +13,19 @@ if not GROQ_API_KEY:
     st.error("Please set your GROQ_API_KEY environment variable.")
     st.stop()
 
+OWASP_LLM_2025 = """
+LLM01:2025 Prompt Injection
+LLM02:2025 Sensitive Information Disclosure
+LLM03:2025 Supply Chain
+LLM04:2025 Data and Model Poisoning
+LLM05:2025 Improper Output Handling
+LLM06:2025 Excessive Agency
+LLM07:2025 System Prompt Leakage
+LLM08:2025 Vector and Embedding Weaknesses
+LLM09:2025 Misinformation
+LLM10:2025 Unbounded Consumption
+"""
+
 # -----------------------------
 # Helper function to call Groq LLM API
 # -----------------------------
@@ -64,36 +77,30 @@ with tabs[0]:
 
     if st.button("Analyze Code", key="code_button"):
         if code_input.strip():
-            prompt = f"""You are a security expert conducting a code security audit.
+            prompt = f"""
+You are an application security expert.
 
-Analyze the following code ONLY for CRITICAL security vulnerabilities that could lead to:
-- Unauthorized access
-- Data breaches
-- Code injection
-- Authentication bypass
-- Privilege escalation
+Analyze the following code and identify ONLY security vulnerabilities.
 
-IGNORE:
-- Performance issues
-- Code style
-- General best practices that aren't security-critical
+You MUST classify each issue using ONLY the following
+OWASP Top 10 for LLM Applications (2025):
 
-For EACH vulnerability found, provide:
+{OWASP_LLM_2025}
 
-### Vulnerability <number>: <name>
-**Description:**  
-**Exploitation Scenario:**  
-**OWASP Top 10 (2021) Mapping:**  
-**MITRE ATLAS Mapping:** (if AI/ML related, otherwise write "N/A")  
-**Recommended Mitigation:**  
-**Example Secure Code:**
+DO NOT invent new categories.
+DO NOT use legacy OWASP Web Top 10 labels.
+DO NOT say "closest match".
 
-If no critical vulnerabilities are found, state: "No critical security vulnerabilities detected."
+For each vulnerability, output EXACTLY in this format:
+
+### Vulnerability <number>: <short name>
+**Description:**
+**OWASP LLM Category:** (must be one of LLM01–LLM10 above)
+**MITRE ATLAS Mapping:** (tactic or technique name)
+**Mitigation:**
 
 Code:
-```
 {code_input}
-```
 """
             with st.spinner("Analyzing code security..."):
                 result = call_groq_model(prompt)
@@ -121,29 +128,31 @@ with tabs[1]:
     if st.button("Analyze Specs", key="specs_button"):
         if specs_input.strip():
             prompt = f"""
-You are a security expert reviewing a Generative AI / Agentic application.
+You are reviewing a Generative AI / Agentic application design.
 
 Identify potential security vulnerabilities that may arise during
 development or deployment.
 
-IMPORTANT:
-- Use ONLY standard OWASP Top 10 for LLM Applications categories
-  (e.g., Prompt Injection, Insecure Output Handling, Excessive Agency, etc.)
-- If unsure, choose the closest match and label it clearly.
+You MUST map every issue to ONLY the following
+OWASP Top 10 for LLM Applications (2025):
 
-For EACH vulnerability, return the output in the following format:
+{OWASP_LLM_2025}
 
-### Vulnerability <number>: <name>
-**Description:**  
-**How it could be exploited:**  
-**OWASP Top 10 for LLM Applications:**  
-**MITRE ATLAS Mapping:**  
-**Recommended Mitigation:**  
+DO NOT invent categories.
+Focus on agent autonomy, tool use, permissions, data access,
+prompt handling, and deployment risks.
+
+For each vulnerability, output EXACTLY in this format:
+
+### Vulnerability <number>: <short name>
+**Description:**
+**OWASP LLM Category:** (must be one of LLM01–LLM10 above)
+**MITRE ATLAS Mapping:** (tactic or technique)
+**Mitigation:**
 
 Application Specifications:
 {specs_input}
 """
-
             with st.spinner("Analyzing application specifications..."):
                 result = call_groq_model(prompt)
 
